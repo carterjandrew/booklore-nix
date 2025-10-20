@@ -16,6 +16,14 @@
 	  packages.${system} = {
 	    booklore-api = pkgs.callPackage ./booklore-api.nix { };
       };
-	  nixosModules.booklore-api = import ./module/booklore-api.nix;
+	  nixosModules.booklore-api = import ./nixos/modules/booklore-api.nix;
+
+	  nixosConfigurations.vm = nixpkgs.lib.nixosSystem {
+	    inherit system;
+		modules = [
+		  self.nixosModules.booklore-api
+		  (import ./nixos/vm-test.nix { inherit self pkgs;})
+		];
+	  };
     };
 }

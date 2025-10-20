@@ -4,6 +4,7 @@
   pkgs,
   ...
 }:
+with lib;
 let cfg = config.services.booklore-api; in {
   options.services.booklore-api = {
     enable = lib.mkEnableOption "booklore-api service";
