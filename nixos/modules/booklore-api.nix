@@ -72,7 +72,7 @@ let cfg = config.services.booklore-api; in {
 	  serviceConfig = {
         User = cfg.user;
 		Group = cfg.group;
-		ExecStart = "./${cfg.package}/bin/booklore-api";
+		ExecStart = "${cfg.package}/bin/booklore-api";
 	  };
 	};
   };

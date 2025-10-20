@@ -1,8 +1,13 @@
-{self, pkgs, lib, ...}:
+{self, pkgs, ...}:
 
 {
   networking.hostName = "booklore-vm";
   services.getty.autologinUser = "root";
+
+  services.mysql = {
+    enable = true;
+	package = pkgs.mariadb;
+  };
 
   services.booklore-api = {
     enable = true;
