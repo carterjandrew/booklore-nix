@@ -51,4 +51,36 @@
 	password = "Test";
     extraGroups = [ "wheel" "networkmanager" ];
   };
+
+  services.nginx = {
+    enable = true;
+	recommendedProxySettings = true;
+	recommendedTlsSettings = true;
+
+	virtualHosts."booklore.local" = {
+      listen = [{
+	    addr = "0.0.0.0";
+		port = 8080;
+	  }];
+
+	  locations."/" = {
+	    proxyPass = "http://127.0.0.1:6060";
+	    extraConfig = ''
+		  proxy_set_header X-Forwarded-Port 8080;
+		  proxy_set_header X-Forwarded-Host localhost;
+		'';
+	  };
+	  locations."/api" = {
+	    proxyPass = "http://127.0.0.1:7070";
+	    extraConfig = ''
+		  proxy_set_header X-Forwarded-Port 8080;
+		  proxy_set_header X-Forwarded-Host localhost;
+		'';
+	  };
+	  locations."/ws" = {
+	    proxyPass = "http://127.0.0.1:7070/ws";
+		proxyWebsockets = true;
+	  };
+	};
+  };
 }
