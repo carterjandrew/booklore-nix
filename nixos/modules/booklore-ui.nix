@@ -12,7 +12,7 @@ let cfg = config.services.booklore-ui; in {
 	group = mkOption { type = types.str; default = "booklore-ui"; };
 
 	wants = mkOption {
-	  type = types.listOf types.string;
+	  type = types.listOf types.str;
 	  description = "Wanted services and targets for triggering start";
 	  default = [ "mysql.service" "network-online.target"];
 	};

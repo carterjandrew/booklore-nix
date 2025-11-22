@@ -11,25 +11,28 @@
   };
 
   systemd.services.setdbpass = {
-    wants = [ "mysql.service" ];
-	wantedBy = [ "multi-user.target" ];
-	serviceConfig = {
-	  Type = "oneshot";
-	  RemainAfterExit = true;
-	  User = "root";
-	  ExecStart = ''
-        ${pkgs.mariadb}/bin/mysql -u root -e \
-		"CREATE booklore@localhost IF NOT EXISTS IDENTIFIED BY 'passwd';"
-	  '';
-	};
+		wants = [ "mysql.service" ];
+		after = [ "mysql.service" ];
+		wantedBy = [ "multi-user.target" ];
+		serviceConfig = {
+			Type = "oneshot";
+			RemainAfterExit = true;
+			User = "root";
+			ExecStart = ''
+				${pkgs.mariadb}/bin/mysql -u root -e \
+				"CREATE USER IF NOT EXISTS 'booklore'@'localhost' IDENTIFIED BY 'passwd';"
+			'';
+		};
   };
 
   services.booklore-api = {
     enable = true;
-	package = self.packages.${pkgs.system}.booklore-api;
-	database.host = "localhost";
-	database.password = "passwd";
-	port = 7070;
+		package = self.packages.${pkgs.system}.booklore-api;
+		database.host = "localhost";
+		database.password = "passwd";
+		port = 7070;
+		wants = [ "mysql.service" "network-online.target" "mysql.service" ];
+		after = [ "network-online.target" ];
   };
 
   services.booklore-ui = {
