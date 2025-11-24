@@ -45,7 +45,7 @@ let cfg = config.services.booklore-ui; in {
   config = mkIf cfg.enable {
     users.users.${cfg.user} = {
 	  isSystemUser = true;
-	  group = cfg.group;
+	  inherit (cfg) group;
 	  home = "/var/lib/booklore";
 	  createHome = true;
 	};
@@ -55,19 +55,19 @@ let cfg = config.services.booklore-ui; in {
 	  description = "Booklore API";
 	  wantedBy = [ "multi-user.target" ];
 	  after = [ "network-online.target" ];
-	  wants = cfg.wants;
+	  inherit (cfg) wants;
 	  serviceConfig = {
-        User = cfg.user;
-		Group = cfg.group;
-		ExecStart = "${cfg.package}/bin/booklore-ui";
+      User = cfg.user;
+			Group = cfg.group;
+			ExecStart = "${cfg.package}/bin/booklore-ui";
 	  };
 	  environment = {
-        TZ="Etc/UTC";
-        BOOKLORE_PORT=builtins.toString(cfg.api-port);
-        SWAGGER_ENABLED="false";
-        FORCE_DISABLE_OIDC="false";
-		PORT=builtins.toString(cfg.port);
-		HOST=cfg.host;
+			TZ="Etc/UTC";
+			BOOKLORE_PORT=builtins.toStringcfg.api-port;
+			SWAGGER_ENABLED="false";
+			FORCE_DISABLE_OIDC="false";
+			PORT=builtins.toStringcfg.port;
+			HOST=cfg.host;
 	  };
 	};
   };

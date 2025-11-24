@@ -61,14 +61,14 @@ let cfg = config.services.booklore-api; in {
 			passwordFile = mkOption { type = types.nullOr types.path; default = null; };
 			password = mkOption { type = types.nullOr types.str; default = null; };
 			# Supply a full JDBC URL yourself to override (otherwise composed from host/port/name).
-			jdbcUrl = mkOption { type = types.str; default = "jdbc:mariadb://${cfg.database.host}:${builtins.toString(cfg.database.port)}/booklore"; };
+			jdbcUrl = mkOption { type = types.str; default = "jdbc:mariadb://${cfg.database.host}:${builtins.toStringcfg.database.port}/booklore"; };
 		};
 	};
 
   config = mkIf cfg.enable {
     users.users.${cfg.user} = {
 	  isSystemUser = true;
-	  group = cfg.group;
+	  inherit (cfg) group;
 	  home = "/var/lib/booklore";
 	  createHome = true;
 	};
@@ -84,15 +84,15 @@ let cfg = config.services.booklore-api; in {
 	systemd.services.booklore-api = {
 	  description = "Booklore API";
 	  wantedBy = [ "multi-user.target" ];
-	  after = cfg.after;
-	  wants = cfg.wants;
+	  inherit (cfg) after;
+	  inherit (cfg) wants;
 	  serviceConfig = {
     User = cfg.user;
 		Group = cfg.group;
 		ExecStart = "${cfg.package}/bin/booklore-api";
 	  };
 	  environment = {
-			BOOKLORE_PORT=builtins.toString(cfg.port);
+			BOOKLORE_PORT=builtins.toStringcfg.port;
 			TZ="Etc/UTC";
 			DATABASE_URL=cfg.database.jdbcUrl;
 			DATABASE_USERNAME=cfg.database.user;
