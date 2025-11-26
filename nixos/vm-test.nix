@@ -34,7 +34,6 @@
 			package = self.packages.${pkgs.system}.booklore-api;
 			database.host = "127.0.0.1";
 			database.password = "passwd";
-			port = 8080;
 			wants = [ "mysql.service" "network-online.target" "mysql.service" ];
 			after = [ "network-online.target" ];
 		};

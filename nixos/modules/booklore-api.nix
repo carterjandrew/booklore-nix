@@ -22,11 +22,11 @@ let cfg = config.services.booklore-api; in {
 			description = "Booklore derivation that provides a fat JAR, and a optional JRE wrapper binary";
 		};
 
-		port = mkOption {
-			type = types.port;
-			default = 6060;
-			description = "Port BookLore API listens on";
-		};
+		# port = mkOption {
+		# 	type = types.port;
+		# 	default = 6060;
+		# 	description = "Port BookLore API listens on";
+		# };
 
 		dataDir = mkOption {
 			type = types.path;
@@ -61,7 +61,7 @@ let cfg = config.services.booklore-api; in {
 			passwordFile = mkOption { type = types.nullOr types.path; default = null; };
 			password = mkOption { type = types.nullOr types.str; default = null; };
 			# Supply a full JDBC URL yourself to override (otherwise composed from host/port/name).
-			jdbcUrl = mkOption { type = types.str; default = "jdbc:mariadb://${cfg.database.host}:${builtins.toStringcfg.database.port}/booklore"; };
+			jdbcUrl = mkOption { type = types.str; default = "jdbc:mariadb://${cfg.database.host}:${builtins.toString cfg.database.port}/booklore"; };
 		};
 	};
 
@@ -92,7 +92,6 @@ let cfg = config.services.booklore-api; in {
 		ExecStart = "${cfg.package}/bin/booklore-api";
 	  };
 	  environment = {
-			BOOKLORE_PORT=builtins.toStringcfg.port;
 			TZ="Etc/UTC";
 			DATABASE_URL=cfg.database.jdbcUrl;
 			DATABASE_USERNAME=cfg.database.user;

@@ -63,10 +63,10 @@ let cfg = config.services.booklore-ui; in {
 	  };
 	  environment = {
 			TZ="Etc/UTC";
-			BOOKLORE_PORT=builtins.toStringcfg.api-port;
+			BOOKLORE_PORT=builtins.toString cfg.api-port;
 			SWAGGER_ENABLED="false";
 			FORCE_DISABLE_OIDC="false";
-			PORT=builtins.toStringcfg.port;
+			PORT=builtins.toString cfg.port;
 			HOST=cfg.host;
 	  };
 	};
