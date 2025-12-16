@@ -14,7 +14,7 @@
     }:
     let
       system = "x86_64-linux";
-      version = "v1.6.0";
+      version = "v1.13.2";
       pkgs = import nixpkgs {
         inherit system;
         overlays = [
