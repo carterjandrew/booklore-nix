@@ -8,13 +8,12 @@
     let
       system = "x86_64-linux";
       version = "v1.14.1";
-			rev = "a3caea3411527900ca12414b66614fd168dd0d27";
-			hash = "sha256-8Aw908Yz2W/Pi0DsblwYGiwRPWJJo/jP8/D56obDMwY=";
+			sha256 = "01ikqf3fmyghyg7zi8s9c8yi2b0s31f6xv20ig7nzn9kqv9ks37h";
       pkgs = import nixpkgs {
         inherit system;
       };
-			booklore-api = pkgs.callPackage ./booklore-api.nix { inherit version rev hash; };
-			booklore-ui = pkgs.callPackage ./booklore-ui.nix { inherit version rev hash; };
+			booklore-api = pkgs.callPackage ./booklore-api.nix { inherit version sha256; };
+			booklore-ui = pkgs.callPackage ./booklore-ui.nix { inherit version sha256; };
     in
 	{
 		formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt-tree;

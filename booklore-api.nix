@@ -1,29 +1,28 @@
 {
-	rev,
-	hash,
+	sha256,
   version,
 	lib,
   stdenv,
   makeWrapper,
   fetchFromGitHub,
   yq-go,
-	jdk21,
-  jdk25,
-  gradle_9,
-  temurin-jre-bin-25,
+  jdk21,
+  gradle,
+  temurin-jre-bin-21,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   inherit version;
   pname = "booklore-api";
 
-  gradle = gradle_9.override {
-		java = jdk25;
+  gradle = gradle.override {
+		java = jdk21;
 		javaToolchains = [ jdk21 ];
 	};
 
   src = fetchFromGitHub {
-		inherit rev hash;
+		inherit sha256;
+		rev = version;
     owner = "booklore-app";
     repo = "booklore";
   };
@@ -51,7 +50,7 @@ stdenv.mkDerivation (finalAttrs: {
 
 	gradleFlags = [ "-Dfile.encoding=utf-8" ];
 
-  gradleBuildTask = "clean build -x test";
+  gradleBuildTask = "clean build -x test --stacktrace";
 
   doCheck = true;
 
@@ -64,7 +63,7 @@ stdenv.mkDerivation (finalAttrs: {
   installPhase = ''
     			mkdir -p $out/{bin,share/booklore-api}
     			cp build/libs/booklore-api-0.0.1-SNAPSHOT.jar $out/share/booklore-api/booklore-api-all.jar
-    			makeWrapper ${temurin-jre-bin-25}/bin/java $out/bin/booklore-api \
+    			makeWrapper ${temurin-jre-bin-21}/bin/java $out/bin/booklore-api \
     			--add-flags "-jar $out/share/booklore-api/booklore-api-all.jar"
     		'';
 })

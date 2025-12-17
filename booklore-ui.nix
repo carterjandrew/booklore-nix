@@ -6,33 +6,38 @@
 	nodejs,
 	nodePackages,
 	stdenv,
-	rev,
-	hash,
+	sha256,
 	version
 }:
 
 buildNpmPackage (_finalAttrs: {
-  pname = "booklore-ui";
   inherit version;
+  pname = "booklore-ui";
+
   src = fetchFromGitHub {
-		inherit rev hash;
+		inherit sha256;
+		rev = version;
     owner = "booklore-app";
     repo = "booklore";
   };
 
   sourceRoot = "${_finalAttrs.src.name}/booklore-ui";
 
-  npmDepsHash = "sha256-ETzFwSNF+qLuiKdnkwsd9LUqEtNf5fJpgmO4+rfnWr8=";
+  npmDepsHash = "sha256-DEC67N9ArHpM5cR+l1gYkt3pQy1C5EH2jq9e/05qdDA=";
 
   npmPackFlags = [ "--ignore-scripts" ];
 
-  NODE_OPTIONS = "--openssl-legacy-provider";
-
   nativeBuildInputs = [ makeWrapper ];
+
   buildInputs = [
     nodejs
     nodePackages.http-server
   ];
+
+	buildPhase = ''
+		npm run build --configuration=production
+	'';
+
 
   installPhase = ''
     	  runHook preInstall
