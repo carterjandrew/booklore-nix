@@ -1,29 +1,25 @@
 {
   description = "Booklore flake";
 
-  inputs = {
-  };
+  inputs = { };
 
   outputs =
-    {
-      self,
-      nixpkgs,
-      ...
-    }:
+    { self, nixpkgs, ... }:
     let
       system = "x86_64-linux";
-      version = "v1.13.2";
+      version = "v1.14.1";
+			rev = "a3caea3411527900ca12414b66614fd168dd0d27";
+			hash = "sha256-8Aw908Yz2W/Pi0DsblwYGiwRPWJJo/jP8/D56obDMwY=";
       pkgs = import nixpkgs {
         inherit system;
       };
-			booklore-api = pkgs.callPackage ./booklore-api.nix { inherit version; };
-			booklore-ui = pkgs.callPackage ./booklore-ui.nix { inherit version; };
+			booklore-api = pkgs.callPackage ./booklore-api.nix { inherit version rev hash; };
+			booklore-ui = pkgs.callPackage ./booklore-ui.nix { inherit version rev hash; };
     in
 	{
 		formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt-tree;
 		packages.${system} = {
-			booklore-api = booklore-api;
-			booklore-ui = booklore-ui;
+			inherit booklore-api booklore-ui;
 		};
 		nixosModules.booklore-api = import ./nixos/modules/booklore-api.nix;
 		nixosModules.booklore-ui = import ./nixos/modules/booklore-ui.nix;

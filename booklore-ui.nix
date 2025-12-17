@@ -1,22 +1,23 @@
-{
-  lib,
-  fetchFromGitHub,
-  buildNpmPackage,
-  makeWrapper,
-  nodejs,
-  nodePackages,
-  stdenv,
-  version,
+{ 
+	lib,
+	fetchFromGitHub,
+	buildNpmPackage,
+	makeWrapper,
+	nodejs,
+	nodePackages,
+	stdenv,
+	rev,
+	hash,
+	version
 }:
 
 buildNpmPackage (_finalAttrs: {
   pname = "booklore-ui";
   inherit version;
   src = fetchFromGitHub {
+		inherit rev hash;
     owner = "booklore-app";
     repo = "booklore";
-    rev = version;
-    sha256 = "0c369fl6wds75kync2kgjm1z1777rbbnlsk9z606lgicqv4akw4v";
   };
 
   sourceRoot = "${_finalAttrs.src.name}/booklore-ui";

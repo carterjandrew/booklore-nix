@@ -1,42 +1,61 @@
 {
+	rev,
+	hash,
+  version,
+	lib,
   stdenv,
+  makeWrapper,
   fetchFromGitHub,
   yq-go,
-  gradle_9,
+	jdk21,
   jdk25,
+  gradle_9,
   temurin-jre-bin-25,
-  makeWrapper,
-  version,
 }:
 
-stdenv.mkDerivation (_finalAttrs: {
+stdenv.mkDerivation (finalAttrs: {
   inherit version;
   pname = "booklore-api";
 
-  gradle = gradle_9.override { java = jdk25; };
+  gradle = gradle_9.override {
+		java = jdk25;
+		javaToolchains = [ jdk21 ];
+	};
 
   src = fetchFromGitHub {
+		inherit rev hash;
     owner = "booklore-app";
     repo = "booklore";
-    rev = version;
-    sha256 = "0c369fl6wds75kync2kgjm1z1777rbbnlsk9z606lgicqv4akw4v";
   };
 
-  sourceRoot = "${_finalAttrs.src.name}/booklore-api";
+  sourceRoot = "${finalAttrs.src.name}/booklore-api";
 
   nativeBuildInputs = [
-    _finalAttrs.gradle
-    makeWrapper
     yq-go
+    makeWrapper
+    finalAttrs.gradle
   ];
 
-  mitmCache = _finalAttrs.gradle.fetchDeps {
-    pkg = _finalAttrs;
+	# Required for mtimCache on Darwin
+	__darwinAllowLocalNetworking = true;
+
+  mitmCache = finalAttrs.gradle.fetchDeps {
+		pkg = finalAttrs.finalPackage;
     data = ./deps.json;
   };
 
+	meta.sourceProvenance = with lib.sourceTypes; [
+    fromSource
+    binaryBytecode # mitm cache
+  ];
+
+	gradleFlags = [ "-Dfile.encoding=utf-8" ];
+
   gradleBuildTask = "clean build -x test";
+
   doCheck = true;
+
+	# Copied from booklores docker build instructions
   postPatch = ''
     			export APP_VERSION=${version}
     			yq eval '.app.version = strenv(APP_VERSION)' -i src/main/resources/application.yaml
