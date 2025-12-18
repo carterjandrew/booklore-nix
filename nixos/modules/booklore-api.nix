@@ -10,12 +10,13 @@ let
 in
 {
   options.services.booklore-api = {
-    enable = lib.mkEnableOption "booklore-api service";
+    enable = lib.mkEnableOption "Booklore API";
 
     user = lib.mkOption {
       type = lib.types.str;
       default = "booklore";
     };
+
     group = lib.mkOption {
       type = lib.types.str;
       default = "booklore";
@@ -49,20 +50,23 @@ in
     };
 
     booksDir = lib.mkOption {
-      type = lib.types.nullOr lib.types.path;
-      default = null;
+      type = lib.types.path;
+      default = "/var/lib/booklore/books";
       description = "Primary books library directory to mount read/write into the service.";
     };
 
     bookdropDir = lib.mkOption {
-      type = lib.types.nullOr lib.types.path;
-      default = null;
+      type = lib.types.path;
+      default = "/var/lib/booklore/bookdrop";
       description = "BookDrop directory watched for imports.";
     };
 
     after = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = [ "network-online.target" ];
+      default = [
+				"network-online.target"
+				"systemd-tmpfiles-setup.service"
+			];
       description = "The targets and services we wait on to start";
     };
 
@@ -107,24 +111,39 @@ in
       home = "/var/lib/booklore";
       createHome = true;
     };
+
     users.groups.${cfg.group} = { };
 
-    systemd.tmpfiles.rules = [
-      "d /app/data 0755 booklore booklore -"
-      "d /books 0755 booklore booklore -"
-      "d /bookdrop 0755 booklore booklore -"
-      "d ${cfg.dataDir} 0755 booklore booklore -"
-    ];
+		# We use systemD path binds so the api will look in the 
+		# right place for files
+		# But the host directories need to exist before we bind them
+		systemd.tmpfiles.rules = [
+			"d ${cfg.dataDir} 0755 booklore booklore -"
+			"d ${cfg.booksDir} 0755 booklore booklore -"
+			"d ${cfg.bookdropDir} 0755 booklore booklore -"
+
+			# Bind mount targets, should maybe set these up to expire or remove themselves
+			# It's lame that booklore has hard coded paths for these
+			"d /app 0755 root root -"
+			"d /app/data 0755 booklore booklore -"
+			"d /books 0755 booklore booklore -"
+			"d /bookdrop 0755 booklore booklore -"
+		];
+
 
     systemd.services.booklore-api = {
       description = "Booklore API";
       wantedBy = [ "multi-user.target" ];
-      inherit (cfg) after;
-      inherit (cfg) wants;
+      inherit (cfg) after wants;
       serviceConfig = {
         User = cfg.user;
         Group = cfg.group;
         ExecStart = "${cfg.package}/bin/booklore-api";
+				BindPaths = [
+					"${cfg.dataDir}:/app/data"
+					"${cfg.booksDir}:/books"
+					"${cfg.bookdropDir}:/bookdrop"
+				];
       };
       environment = {
         TZ = "Etc/UTC";

@@ -10,15 +10,18 @@
       Type = "oneshot";
       RemainAfterExit = true;
       User = "root";
-      ExecStart = ''
-				${pkgs.mariadb}/bin/mysql -u root -e \
-				"
-					CREATE USER IF NOT EXISTS 'booklore'@'localhost' IDENTIFIED BY 'passwd';
-					GRANT ALL PRIVILEGES ON booklore.* TO 'booklore'@'localhost';
-					FLUSH PRIVILEGES;
-				"
-			'';
     };
+		script = ''
+			${pkgs.mariadb}/bin/mysql -u root -e \
+			"
+				CREATE DATABASE IF NOT EXISTS booklore;
+				DROP USER IF EXISTS 'booklore'@'localhost';
+				DROP USER IF EXISTS 'booklore'@'%';
+				CREATE USER 'booklore'@'localhost' IDENTIFIED BY 'passwd';
+				GRANT ALL PRIVILEGES ON booklore.* TO 'booklore'@'localhost';
+				FLUSH PRIVILEGES;
+			"
+		'';
   };
 
   services = {
@@ -26,7 +29,6 @@
     mysql = {
       enable = true;
       package = pkgs.mariadb;
-      ensureDatabases = [ "booklore" ];
     };
 
     booklore-api = {
@@ -34,12 +36,6 @@
       package = self.packages.${pkgs.system}.booklore-api;
       database.host = "127.0.0.1";
       database.password = "passwd";
-      wants = [
-        "mysql.service"
-        "network-online.target"
-        "mysql.service"
-      ];
-      after = [ "network-online.target" ];
     };
 
     booklore-ui = {

@@ -10,7 +10,7 @@
 	version
 }:
 
-buildNpmPackage (_finalAttrs: {
+buildNpmPackage (finalAttrs: {
   inherit version;
   pname = "booklore-ui";
 
@@ -21,7 +21,7 @@ buildNpmPackage (_finalAttrs: {
     repo = "booklore";
   };
 
-  sourceRoot = "${_finalAttrs.src.name}/booklore-ui";
+  sourceRoot = "${finalAttrs.src.name}/booklore-ui";
 
   npmDepsHash = "sha256-DEC67N9ArHpM5cR+l1gYkt3pQy1C5EH2jq9e/05qdDA=";
 
@@ -29,30 +29,11 @@ buildNpmPackage (_finalAttrs: {
 
   nativeBuildInputs = [ makeWrapper ];
 
-  buildInputs = [
-    nodejs
-    nodePackages.http-server
-  ];
+	npmFlags = [ "--legacy-peer-deps" ];
 
 	buildPhase = ''
 		npm run build --configuration=production
 	'';
-
-
-  installPhase = ''
-    	  runHook preInstall
-
-    	  mkdir -p $out/bin
-    	  mkdir -p $out/share
-    	  mkdir -p $out/share/booklore-ui
-          cp -r dist/booklore/browser/* $out/share/booklore-ui/
-    	  makeWrapper ${nodePackages.http-server}/bin/http-server \
-    	  $out/bin/booklore-ui \
-    	  --add-flags "$out/share/booklore-ui" \
-    	  --add-flags "-p 6060"
-
-    	  runHook postInstall
-    	'';
 
   meta = {
     description = "Web UI for Booklore";
