@@ -21,15 +21,18 @@
 			inherit booklore-api booklore-ui;
 		};
 		nixosModules.booklore-api = import ./nixos/modules/booklore-api.nix;
+		nixosModules.booklore = import ./nixos/modules/booklore.nix;
 
 		nixosConfigurations.vm = nixpkgs.lib.nixosSystem {
 			inherit system;
-			specialArgs = {
-			 inherit booklore-api booklore-ui;
-			};
 			modules = [
-				self.nixosModules.booklore-api
+				self.nixosModules.booklore
 				./nixos/vm-test.nix
+				# Pass modules? Idk how I feel about this
+				{
+				 services.booklore.ui.package = booklore-ui;
+				 services.booklore-api.package = booklore-api;
+				}
 				# Config for VM allocation
 				(
 					{ config, pkgs, ... }:
